@@ -1,0 +1,107 @@
+from database import *
+from schema.project_schema import *
+from model.project_model import *
+from service.project_service import *
+from fastapi import APIRouter,HTTPException,status,Depends,Request,Path,Query
+from datetime import datetime
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
+router = APIRouter(
+    prefix="/projects"
+)
+
+def create_response(
+        status_code:int,
+        message: str,
+        error =  None,
+        data = None,
+        path = ""
+):
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status_code":status_code,
+            "message": message,
+            "error": error,
+            "data": data,
+            "timestamp": datetime.now().isoformat(),
+            "path": path
+        }
+    )
+
+
+@router.post("/",tags = ["Tao du an"],status_code=status.HTTP_201_CREATED,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["user","admin"]))])
+
+def add_new_project(request:Request,new_project:CreateProject,user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
+    information = add_project(new_project,db,user_data)
+    return create_response(
+        status_code=status.HTTP_201_CREATED,
+        message="Tao thanh cong du an moi",
+        data=jsonable_encoder(information),
+        path = request.url.path
+    )
+
+@router.get("/",tags=["Danh sach du an cua toi"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["user","admin"]))])
+
+def show_my_project(request:Request,keyword:str = Query(None),db:Session = Depends(get_db),user_data:dict = Depends(handle_token)):
+    information = show_own_project(db,keyword,user_data)
+    if information is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Nguoi dung chua co du an nao"
+        )
+    return create_response(
+        status_code=status.HTTP_200_OK,
+        message="Lay thanh cong du an",
+        data=jsonable_encoder(information),
+        path = request.url.path
+    )
+
+@router.get("/{project_id}",tags=["Chi tiet du an"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
+
+def show_project_through_id(request:Request,project_id: int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
+    information  = show_through_id(project_id,db,user_data)
+    if information is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Khong tim thay du an tuong ung"
+        )
+    return create_response(
+            status_code=status.HTTP_200_OK,
+            message="Lay thanh cong du an",
+            data=jsonable_encoder(information),
+            path = request.url.path
+        )
+
+@router.patch("/{project_id}",tags = ["Cap nhat du an"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
+
+def update_project(request:Request,new_project:CreateProject,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
+    information = update_information(project_id,new_project,db,user_data)
+    if information is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Khong tim thay du an tuong ung"
+        )
+    return create_response(
+        status_code=status.HTTP_200_OK,
+        message="Cap nhat thanh cong du an",
+        data=jsonable_encoder(information),
+        path = request.url.path
+    )
+
+@router.delete("/{project_id}",tags=["Xoa du an"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
+
+def remove_project(request:Request,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
+    information = remove_information(project_id,db,user_data)
+    if information is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Khong tim thay du an tuong ung"
+        )
+    return create_response(
+        status_code=status.HTTP_200_OK,
+        message="Xoa thanh cong du an",
+        data=jsonable_encoder(information),
+        path = request.url.path
+    )
