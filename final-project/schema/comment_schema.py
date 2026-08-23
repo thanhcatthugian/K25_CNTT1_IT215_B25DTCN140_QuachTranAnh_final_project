@@ -1,4 +1,9 @@
 from pydantic import BaseModel,Field
 
-class Comment(BaseModel):
-    comment:str = Field(...,min_length=2)
+class CreateComment(BaseModel):
+    comment_text:str
+
+class CommentResponse(BaseModel):
+    id: int
+    comment_text:str
+    task_id: int

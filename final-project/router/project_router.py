@@ -51,6 +51,11 @@ def show_my_project(request:Request,keyword:str = Query(None),db:Session = Depen
             status_code=status.HTTP_404_NOT_FOUND,
             detail = "Nguoi dung chua co du an nao"
         )
+    elif information ==1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nguoi dung khong ton tai trong du an"
+        )
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Lay thanh cong du an",
@@ -83,6 +88,16 @@ def update_project(request:Request,new_project:CreateProject,project_id:int = Pa
             status_code=status.HTTP_404_NOT_FOUND,
             detail = "Khong tim thay du an tuong ung"
         )
+    if information==1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong the thao tac tren project"
+        )
+    elif information==2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Khong the thao tac tren du lieu da bi xoa"
+        )
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Cap nhat thanh cong du an",
@@ -93,11 +108,21 @@ def update_project(request:Request,new_project:CreateProject,project_id:int = Pa
 @router.delete("/{project_id}",tags=["Xoa du an"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
 
 def remove_project(request:Request,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
-    information = remove_information(project_id,db,user_data)
+    information = soft_delete_project(project_id,db,user_data)
     if information is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail = "Khong tim thay du an tuong ung"
+        )
+    if information==1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong the thao tac tren project"
+        )
+    elif information==2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Project da duoc xoa"
         )
     return create_response(
         status_code=status.HTTP_200_OK,
@@ -105,3 +130,4 @@ def remove_project(request:Request,project_id:int = Path(...),user_data:dict = D
         data=jsonable_encoder(information),
         path = request.url.path
     )
+

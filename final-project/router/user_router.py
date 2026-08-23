@@ -33,8 +33,8 @@ def create_response(
 
 @router.get("/",dependencies=[Depends(RoleCheck(["admin"]))],status_code=status.HTTP_200_OK,tags=["Xem danh sach / Tim nguoi dung"],response_model=UserResponse)
 
-def show_user(request:Request,keyword:str = Query(None),db:Session  = Depends(get_db)):
-    information = show_through_id(keyword,db)
+def show_user(request:Request,keyword:str = Query(None),status_keyword:str = Query(None),db:Session  = Depends(get_db)):
+    information = show_through_id(keyword,status_keyword,db)
     if information is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -47,7 +47,7 @@ def show_user(request:Request,keyword:str = Query(None),db:Session  = Depends(ge
         path = request.url.path
     )
 
-@router.get("/me",status_code=status.HTTP_200_OK,tags=["Xem  ho so ca nhan"],response_model=UserResponse,dependencies=[Depends(RoleCheck(["user"]))])
+@router.get("/me",status_code=status.HTTP_200_OK,tags=["Xem  ho so ca nhan"],response_model=UserResponse,dependencies=[Depends(RoleCheck(["user","admin"]))])
 
 def check_current_account(request:Request,user_data: dict = Depends(SECURITY_KEY)):
     information = handle_token(user_data)

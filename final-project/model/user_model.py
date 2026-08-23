@@ -11,6 +11,7 @@ class User(Base):
     role = Column(Enum("user","admin"),default="user",nullable=False)
     is_active = Column(Boolean,nullable=False,default= True)
     created_at = Column(DateTime,nullable=False)
+    
 
     projects = relationship("Project",back_populates="user")
     project_members = relationship("ProjectMember",back_populates="user")

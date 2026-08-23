@@ -46,6 +46,26 @@ def add_new_member(request:Request,new_project_member:AddMember,project_id:int =
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay thong tin user"
         )
+    elif information == 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Thanh vien da co trong du an nay"
+        )
+    elif information == 3:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail  = "khong the thao tac tren du an nay"
+        )
+    elif information == 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail= "Du an nay da bi xoa"
+        )
+    elif information ==5:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "User khong con hoat dong"
+        )
     return create_response(
         status_code=status.HTTP_201_CREATED,
         message="Them thanh cong thanh vien moi",
@@ -63,6 +83,11 @@ def get_member_list(request:Request,project_id:int = Path(...),user_data:dict = 
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay thong tin du an"
         )
+    elif information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong the xem thanh vien du an ma nguoi dung khong thuoc du an"
+        )
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Lay thanh cong du lieu",
@@ -78,6 +103,16 @@ def add_new_task(request:Request,new_task:CreateTask,project_id:int = Path(...),
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay du an"
+        )
+    elif information ==1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Du an da bi xoa"
+        )
+    elif information == 2:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong the them task ma nguoi dung khong thuoc du an"
         )
     return create_response(
         status_code=status.HTTP_201_CREATED,
@@ -95,6 +130,16 @@ def show_all_task(request:Request,project_id:int = Path(...),db:Session = Depend
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay du an lien quan"
         )
+    elif information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong the xem task ma nguoi dung khong thuoc du an"
+        )
+    elif information == 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Du an da bi xoa"
+        )
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Lay thanh cong du lieu",
@@ -105,11 +150,21 @@ def show_all_task(request:Request,project_id:int = Path(...),db:Session = Depend
 @router.delete("/{project_id}/members/{user_id}",tags = ["Xoa thanh vien"],status_code=status.HTTP_200_OK,response_model=MemberResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
 
 def remove_member(request:Request,project_id:int = Path(...),user_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
-    information = remove_information(project_id,user_id,db,user_data)
+    information = soft_delete_member(project_id,user_id,db,user_data)
     if information is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay thong tin thanh vien"
+        )
+    elif information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong the xoa thanh vien du an ma nguoi dung khong thuoc du an"
+        )
+    elif information == 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Thanh vien nay da bi xoa"
         )
     return create_response(
         status_code=status.HTTP_200_OK,

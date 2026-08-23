@@ -11,6 +11,7 @@ from router.project_member_router import router as project_member_router
 from router.project_router import router as project_router
 from router.task_router import router as task_router
 from seed import *
+from setting import settings
 app = FastAPI()
 Base.metadata.create_all(bind = engine)
 
@@ -20,11 +21,8 @@ app.include_router(project_router)
 app.include_router(project_member_router)
 app.include_router(task_router)
 run_seed()
-lst_org = [
-    "http://localhost:3000/",
-    "http://localhost:3001/"
-    "http://localhost:8000/"
-]
+
+lst_org = settings.lst_org.split(",")
 
 app.add_middleware(
     CORSMiddleware,

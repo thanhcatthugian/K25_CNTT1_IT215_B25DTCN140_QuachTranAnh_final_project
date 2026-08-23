@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Column,String,Integer,Text,DateTime,ForeignKey
+from sqlalchemy import Column,String,Integer,Text,DateTime,ForeignKey,Boolean
 from sqlalchemy.orm import relationship
 class Project(Base):
     __tablename__ = "projects"
@@ -11,3 +11,4 @@ class Project(Base):
     owner_id = Column(Integer,ForeignKey("users.id"),nullable=False)
     project_members = relationship("ProjectMember",back_populates="project")
     tasks = relationship("Task",back_populates="project")
+    is_deleted = Column(Boolean,default=False,nullable=False)
