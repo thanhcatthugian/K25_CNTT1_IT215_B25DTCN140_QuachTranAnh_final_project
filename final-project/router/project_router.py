@@ -72,6 +72,11 @@ def show_project_through_id(request:Request,project_id: int = Path(...),user_dat
             status_code=status.HTTP_404_NOT_FOUND,
             detail = "Khong tim thay du an tuong ung"
         )
+    elif information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Khong tim thay project"
+        )
     return create_response(
             status_code=status.HTTP_200_OK,
             message="Lay thanh cong du an",
@@ -105,7 +110,7 @@ def update_project(request:Request,new_project:CreateProject,project_id:int = Pa
         path = request.url.path
     )
 
-@router.delete("/{project_id}",tags=["Xoa du an"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
+@router.delete("/{project_id}",tags=["Xoa du an"],status_code=status.HTTP_204_NO_CONTENT,dependencies=[Depends(RoleCheck(["admin","user"]))])
 
 def remove_project(request:Request,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
     information = soft_delete_project(project_id,db,user_data)
@@ -124,10 +129,4 @@ def remove_project(request:Request,project_id:int = Path(...),user_data:dict = D
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Project da duoc xoa"
         )
-    return create_response(
-        status_code=status.HTTP_200_OK,
-        message="Xoa thanh cong du an",
-        data=jsonable_encoder(information),
-        path = request.url.path
-    )
 

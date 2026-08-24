@@ -11,7 +11,7 @@ from model.user_model import *
 import logging
 
 logging.basicConfig(
-    filename="project_member.log",
+    filename="app.log",
     level=logging.INFO,
     format= "%(asctime)s + %(levelname)s + %(message)s",
     encoding="utf-8"
@@ -60,18 +60,25 @@ def add_project_memeber(project_id:int,new_project_member:AddMember,db:Session,u
             logging.warning(f"User co id {new_project_member.user_id} khong hoat dong")
             return 5
         qualify = db.query(ProjectMember).filter(ProjectMember.user_id==new_project_member.user_id,ProjectMember.project_id==project_id).first()
+        if qualify is not None and qualify.is_deleted is True:
+            qualify.is_deleted = False
+            db.commit()
+            logging.info(f"user co id {new_project_member.user_id} da duoc hoi sinh")
+            return 6
         if qualify:
             logging.warning(f"user co id {new_project_member.user_id} da ton tai trong project")
             return 2
         if information.is_deleted is True:
-            logging.warning(f"Projecy co id {project_id} da bi xoa")
+            logging.warning(f"Project co id {project_id} da bi xoa")
             return 4
+        user_name = db.query(User).filter(User.id==new_project_member.user_id).first()
         totally_new = ProjectMember(
             project_id = project_id,
             user_id = new_project_member.user_id,
             role = "member",
             joined_at = datetime.now(),
-        is_deleted = False
+            user_name = user_name.full_name,
+            is_deleted = False
         )
         db.add(totally_new)
         db.commit()

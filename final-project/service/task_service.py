@@ -13,7 +13,7 @@ from model.project_model import *
 import logging
 
 logging.basicConfig(
-    filename="task.log",
+    filename="app.log",
     level=logging.INFO,
     format= "%(asctime)s + %(levelname)s + %(message)s",
     encoding="utf-8"
@@ -110,13 +110,13 @@ def show_through_id(task_id:int,db:Session,user_data:dict = Depends(handle_token
         return None
     if validation.role == "member" or validation.role == "owner":
         information = db.query(Task).filter(Task.id==task_id).first()
+        if not information:
+            logging.warning(f"Khong tim thay task co id {task_id}")
+            return None
         in_project = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==information.project_id).all()
         if not in_project:
             logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
             return 2
-        if not information:
-            logging.warning(f"Khong tim thay task co id {task_id}")
-            return None
         logging.info(f"Hien thi task co id {task_id}")
         return information
     logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co quyen thuc hien hien thi task")
@@ -199,7 +199,7 @@ def find_task_by_keyword(project_id:int,keyword:str,db:Session,user_data:dict = 
     if not validation:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
         return 1
-    if validation.role == "member" or validation == "owner":
+    if validation.role == "member" or validation.role == "owner":
         verify = db.query(Project).filter(Project.id==project_id).first()
         if verify.is_deleted is True:
             logging.warning(f"project co id {project_id} da bi xoa")
@@ -250,7 +250,7 @@ def upload_file(task_id:int ,db:Session = Depends,file:UploadFile = File(...),us
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"]).first()
     if not validation:
         return None
-    if validation.role=="member":
+    if validation.role=="member" or validation.role == "owner":
         information = db.query(Task).filter(Task.id==task_id).first()
         in_project = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==information.project_id).all()
         if not in_project:
@@ -270,3 +270,28 @@ def upload_file(task_id:int ,db:Session = Depends,file:UploadFile = File(...),us
             detail="Khong du quyen truy cap"
         )
 
+
+
+def sort_tasks_by_created_at(project_id:int,limit_data:int,offset_data:int,db:Session,user_data:dict = Depends(handle_token)):
+    information = db.query(Project).filter(Project.id==project_id).first()
+    if not information:
+        return None
+    if information.is_deleted is True:
+        return 2
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 1
+    if validation.role == "member" or validation.role == "owner":
+        if limit_data is None and offset_data is None:
+            return db.query(Task).all()
+        elif limit_data is not None and offset_data is None:
+            return db.query(Task).order_by(Task.created_at).limit(limit_data).all()
+        elif limit_data is None and offset_data is not None:
+            return db.query(Task).order_by(Task.created_at).offset(offset_data).all()
+        elif limit_data is not None and offset_data is not None:
+            return db.query(Task).order_by(Task.created_at).limit(limit_data).offset(offset_data).all()
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail = "Khong du quyen han truy cap chuc nang nay"
+    )
+        

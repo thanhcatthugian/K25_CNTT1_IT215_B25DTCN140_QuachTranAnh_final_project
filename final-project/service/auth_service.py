@@ -9,7 +9,7 @@ from fastapi import HTTPException,status
 import logging
 
 logging.basicConfig(
-    filename="auth.log",
+    filename="app.log",
     level=logging.INFO,
     format= "%(asctime)s + %(levelname)s + %(message)s",
     encoding="utf-8"
@@ -66,7 +66,7 @@ def log_in_account(log_information:LogIn,db:Session):
         "is_active": information.is_active
     }
     token = create_access_token(payload)
-    logging.info(f"Da tao thanh cong mot access token moi: {token}")
+    logging.info("Da tao thanh cong mot access token moi")
     return {
         "access_token": token,
         "token_type": "bearer",

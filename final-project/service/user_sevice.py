@@ -9,7 +9,7 @@ from sqlalchemy import or_
 import logging
 
 logging.basicConfig(
-    filename="user.log",
+    filename="app.log",
     level=logging.INFO,
     format= "%(asctime)s + %(levelname)s + %(message)s",
     encoding="utf-8"

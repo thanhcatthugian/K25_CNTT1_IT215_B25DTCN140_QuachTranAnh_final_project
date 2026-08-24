@@ -66,6 +66,12 @@ def add_new_member(request:Request,new_project_member:AddMember,project_id:int =
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "User khong con hoat dong"
         )
+    elif information == 6:
+        return create_response(
+            status_code=status.HTTP_200_OK,
+            message="Thanh vien da duoc hoi sinh",
+            path = request.url.path
+        )
     return create_response(
         status_code=status.HTTP_201_CREATED,
         message="Them thanh cong thanh vien moi",
@@ -147,7 +153,7 @@ def show_all_task(request:Request,project_id:int = Path(...),db:Session = Depend
         path = request.url.path
     )
     
-@router.delete("/{project_id}/members/{user_id}",tags = ["Xoa thanh vien"],status_code=status.HTTP_200_OK,response_model=MemberResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
+@router.delete("/{project_id}/members/{user_id}",tags = ["Xoa thanh vien"],status_code=status.HTTP_204_NO_CONTENT,dependencies=[Depends(RoleCheck(["admin","user"]))])
 
 def remove_member(request:Request,project_id:int = Path(...),user_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
     information = soft_delete_member(project_id,user_id,db,user_data)
@@ -166,10 +172,5 @@ def remove_member(request:Request,project_id:int = Path(...),user_id:int = Path(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Thanh vien nay da bi xoa"
         )
-    return create_response(
-        status_code=status.HTTP_200_OK,
-        message="Xoa cong du lieu",
-        data=jsonable_encoder(information),
-        path = request.url.path
-    )
+
 

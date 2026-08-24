@@ -8,11 +8,11 @@ from datetime import datetime
 from sqlalchemy.orm import joinedload
 from database import *
 from model.project_member_model import *
-
+from model.user_model import *
 import logging
 
 logging.basicConfig(
-    filename="project.log",
+    filename="app.log",
     level=logging.INFO,
     format= "%(asctime)s + %(levelname)s + %(message)s",
     encoding="utf-8"
@@ -56,11 +56,13 @@ def add_project(new_project:CreateProject,db:Session,user_data:dict = Depends(ha
     db.add(totally_new)
     db.commit()
     logging.info(f"da tao thanh cong mot project moi co id {totally_new.id}")
+    new_mem_name = db.query(User).filter(User.id==user_data["user_id"]).first()
     totally_new_mem = ProjectMember(
         project_id = totally_new.id,
         user_id = user_data["user_id"],
         role = "owner",
         joined_at = datetime.now(),
+        user_name = new_mem_name.full_name,
         is_deleted = False
     )
     db.add(totally_new_mem)
