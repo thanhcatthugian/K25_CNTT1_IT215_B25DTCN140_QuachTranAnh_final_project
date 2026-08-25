@@ -11,3 +11,5 @@ class MemberResponse(BaseModel):
     is_deleted:bool
     model_config = ConfigDict(from_attributes=True)
 
+class AddManyMember(BaseModel):
+    user_id : str  = Field(...)

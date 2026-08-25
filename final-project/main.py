@@ -12,6 +12,17 @@ from router.project_router import router as project_router
 from router.task_router import router as task_router
 from seed import *
 from setting import settings
+import logging
+
+logging.basicConfig(
+    filename="app.log",
+    level= logging.INFO,
+    format= "%(asctime)s + %(levelname)s + %(message)s",
+    encoding="utf-8"
+)
+
+
+
 app = FastAPI()
 Base.metadata.create_all(bind = engine)
 
@@ -63,6 +74,7 @@ def create_response(
 @app.exception_handler(RequestValidationError)
 
 def request_validation_handler(request:Request,exc:RequestValidationError):
+    logging.warning("Loi dinh dang du lieu")
     return create_response(
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         message="Loi dinh dang du lieu, vui long thu lai sau",
@@ -74,6 +86,7 @@ def request_validation_handler(request:Request,exc:RequestValidationError):
 @app.exception_handler(HTTPException)
 
 def http_exception_handler(request:Request,exc:HTTPException):
+    logging.warning("Loi HTTP")
     return create_response(
         status_code=exc.status_code,
         message=exc.detail,
@@ -83,6 +96,7 @@ def http_exception_handler(request:Request,exc:HTTPException):
 @app.exception_handler(Exception)
 
 def exception_handler(request:Request,exc:Exception):
+    logging.warning("Loi server")
     print(f"[INTERNAL SERVER ERROR] Path: {request.url.path} | {str(exc)}")
     return create_response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -93,6 +107,7 @@ def exception_handler(request:Request,exc:Exception):
 @app.get("/health-check",tags=["Kiem tra API"])
 
 def health_check():
+    logging.info("Check health")
     return "Still good"
 
 

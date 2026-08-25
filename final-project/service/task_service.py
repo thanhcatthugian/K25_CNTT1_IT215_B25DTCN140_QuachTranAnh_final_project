@@ -148,7 +148,7 @@ def update_task_information(task_id:int,db:Session,new_task:UpdateTask,user_data
                     status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                     detail = "Can truyen dung dinh dang YYYY-MM-DD / YYYY-MM-DDTHH:MM:SS"
                 )
-        qualify = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.user_id==new_task.assignee_id).first()
+        qualify = db.query(ProjectMember).filter(ProjectMember.user_id==new_task.assignee_id,ProjectMember.project_id==information.project_id).first()
         if not qualify:
             logging.warning(f"Nguoi dung co id {new_task.assignee_id} khong thuoc du an")
             return 1
@@ -191,8 +191,6 @@ def soft_delete_task(task_id:int,db:Session,user_data:dict = Depends(handle_toke
         detail = "Khong du quyen truy cap chuc nang nay"
     )
         
-
-
 
 def find_task_by_keyword(project_id:int,keyword:str,db:Session,user_data:dict = Depends(handle_token)):
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
@@ -259,6 +257,9 @@ def upload_file(task_id:int ,db:Session = Depends,file:UploadFile = File(...),us
         if not information:
             logging.warning(f"Khong tim thay task co id {task_id}")
             return None
+        if information.is_deleted is True:
+            logging.warning(f"task co id {task_id} da bixoa")
+            return 3
         information.attach_file = handle_upload_file(file)
         db.commit()
         db.refresh(information)
@@ -272,7 +273,7 @@ def upload_file(task_id:int ,db:Session = Depends,file:UploadFile = File(...),us
 
 
 
-def sort_tasks_by_created_at(project_id:int,limit_data:int,offset_data:int,db:Session,user_data:dict = Depends(handle_token)):
+def limit_offsett(project_id:int,limit_data:int,offset_data:int,db:Session,user_data:dict = Depends(handle_token)):
     information = db.query(Project).filter(Project.id==project_id).first()
     if not information:
         return None
@@ -294,4 +295,21 @@ def sort_tasks_by_created_at(project_id:int,limit_data:int,offset_data:int,db:Se
         status_code=status.HTTP_403_FORBIDDEN,
         detail = "Khong du quyen han truy cap chuc nang nay"
     )
-        
+
+
+def sort_tasks_by_created_at(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    information = db.query(Project).filter(Project.id==project_id).first()
+    if not information:
+        return None
+    if information.is_deleted is True:
+        return 2
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 1
+    if validation.role == "member" or validation.role == "owner":
+        return db.query(Task).order_by(Task.created_at.asc()).all()
+    raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong du quyen han truy cap chuc nang nay"
+        )
+    

@@ -31,6 +31,30 @@ def create_response(
         }
     )
 
+@router.post("/{project_id}/many-members",tags=["Them nhieu thanh vien du an"],status_code=status.HTTP_201_CREATED,response_model=MemberResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
+def add_manh_new_member(request:Request,new_project_member:AddManyMember,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
+    information = add_many_member(project_id,new_project_member,db,user_data)
+    if information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail  = "khong the thao tac tren du an nay"
+        )
+    elif information is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Khong tim thay du an tuong ung"
+        )
+    elif information == 2:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail= "Du an nay da bi xoa"
+        )
+    return create_response(
+            status_code=status.HTTP_201_CREATED,
+            message="Them thanh cong thanh vien moi",
+            data=jsonable_encoder(information),
+            path = request.url.path
+        )
 
 @router.post("/{project_id}/members",tags=["Them thanh vien du an"],status_code=status.HTTP_201_CREATED,response_model=MemberResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
 

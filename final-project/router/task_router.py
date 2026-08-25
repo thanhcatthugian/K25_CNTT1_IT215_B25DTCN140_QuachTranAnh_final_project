@@ -35,7 +35,7 @@ def create_response(
 @router.get("{project_id}/limit-offset",tags = ["Phan trang theo ngay tao"],status_code=status.HTTP_200_OK,response_model=TaskResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
 
 def task_filter_through_create_at(request:Request,limit_data: int = Query(None),offset_data:int = Query(None),project_id: int = Path(...),db:Session = Depends(get_db),user_data:dict = Depends(handle_token)):
-    information = sort_tasks_by_created_at(project_id,limit_data,offset_data,db,user_data)
+    information = limit_offsett(project_id,limit_data,offset_data,db,user_data)
     if information is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

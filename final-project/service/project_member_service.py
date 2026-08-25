@@ -90,6 +90,59 @@ def add_project_memeber(project_id:int,new_project_member:AddMember,db:Session,u
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Khong du quyen han truy cap chuc nang nay"
     )
+
+def add_many_member(project_id:int,new_project_member:AddManyMember,db:Session,user_data:dict = Depends(handle_token)):
+    fail_append = []
+    success_append = []
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 1
+    if validation.role=="owner":
+        information = db.query(Project).filter(Project.id==project_id).first()
+        if not information:
+            return None
+        if information.is_deleted is True:
+            return 2
+        raw_id = new_project_member.model_dump()["user_id"]
+        new_members = raw_id.strip().split(",")
+        for i in new_members:
+            i = int(i)
+            is_exist = db.query(User).filter(User.id==i).first()
+            if not is_exist:
+                fail_append.append(i)
+                continue
+            if is_exist.is_active is False:
+                fail_append.append(i)
+                continue
+            qualify = db.query(ProjectMember).filter(ProjectMember.user_id==i,ProjectMember.project_id==project_id).first()
+            if qualify is not None and qualify.is_deleted is True:
+                qualify.is_deleted = False
+                success_append.append(i)
+                continue
+            if qualify:
+                fail_append.append(i)
+                continue
+            totally_new = ProjectMember(
+            project_id = project_id,
+            user_id = i,
+            role = "member",
+            joined_at = datetime.now(),
+            user_name = is_exist.full_name,
+            is_deleted = False
+                ) 
+            success_append.append(i)  
+            db.add(totally_new)
+            db.commit()
+            db.refresh(totally_new)
+        return {
+            "success_added": success_append,
+            "fail_added": fail_append
+        }
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail = "Khong du quyen han truy cap chuc nang nay"
+    )
+
     
 def show_member_list(project_id:int,db:Session,user_data: dict = Depends(handle_token)):
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()

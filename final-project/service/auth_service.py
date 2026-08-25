@@ -45,12 +45,15 @@ def add_account(new_account:CreateAccount,db:Session):
 
 def log_in_account(log_information:LogIn,db:Session):
     information = db.query(User).filter(User.email==log_information.email).first()
+    check_brute_force(log_information.email)
     if not information:
         logging.warning(f"Khong ton tai user co email {information.email}")
+        record_login(log_information.email)
         return None
     is_correct = check_password(log_information.password,information.password_hash)
     if is_correct is False:
         logging.warning("Mat khau duoc nhap vao khong dung")
+        record_login(log_information.email)
         return None
     if information.is_active is False:
         logging.warning("Tai khoan duoc dang nhap da ngung hoat dong")
@@ -58,6 +61,7 @@ def log_in_account(log_information:LogIn,db:Session):
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Tai khoan da ngung hoat dong"
         )
+    clear_login(log_information.email)
     payload = {
         "sub": information.email,
         "user_id": information.id,
