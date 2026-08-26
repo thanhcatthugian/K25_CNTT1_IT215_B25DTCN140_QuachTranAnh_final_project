@@ -96,7 +96,7 @@ def http_exception_handler(request:Request,exc:HTTPException):
 @app.exception_handler(Exception)
 
 def exception_handler(request:Request,exc:Exception):
-    logging.warning("Loi server")
+    logging.error("Loi server")
     print(f"[INTERNAL SERVER ERROR] Path: {request.url.path} | {str(exc)}")
     return create_response(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

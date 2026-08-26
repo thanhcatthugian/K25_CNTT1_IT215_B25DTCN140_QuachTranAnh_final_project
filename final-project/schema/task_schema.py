@@ -1,19 +1,19 @@
 from pydantic import BaseModel,ConfigDict,Field
 from typing import Literal
-
+from datetime import datetime
 class CreateTask(BaseModel):
     title:str = Field(...)
     description: str = Field(None)
     status: Literal["todo","in_progress","done"] = Field(default="todo")
     priority : Literal["low","medium","high"]  = Field(default = "low")
-    due_date :str   = Field(...)
+    due_date :datetime   = Field(default=None)
 
 class UpdateTask(BaseModel):
     title:str = Field(...)
     description: str = Field(None)
     status: Literal["todo","in_progress","done"] = Field(default="todo")
     priority : Literal["low","medium","high"]  = Field(default = "low")
-    due_date :str   = Field(...)
+    due_date :datetime   = Field(default=None)
     assignee_id : int = Field(None)
 
 class TaskResponse(BaseModel):

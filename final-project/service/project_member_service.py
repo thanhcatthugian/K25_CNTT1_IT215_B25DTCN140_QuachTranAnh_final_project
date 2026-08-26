@@ -118,7 +118,6 @@ def add_many_member(project_id:int,new_project_member:AddManyMember,db:Session,u
             if qualify is not None and qualify.is_deleted is True:
                 qualify.is_deleted = False
                 success_append.append(i)
-                continue
             if qualify:
                 fail_append.append(i)
                 continue
