@@ -167,10 +167,15 @@ def soft_delete_member(project_id:int,user_id:int,db:Session,user_data:dict = De
         logging.warning(f"Nguoi dung co id{user_data["user_id"]} khong ton tai trong du an")
         return 1
     if validation.role == "owner":
+        qualify = db.query(Project).filter(Project.id==project_id).first()
+        if not qualify:
+            return None
         information = db.query(ProjectMember).filter(ProjectMember.project_id==project_id,ProjectMember.user_id==user_id).first()
         if not information:
-            logging.warning(f"Khong tim thay project co id{project_id}")
-            return None
+            logging.warning(f"Khong tim thay project member co id{project_id}")
+            return 3
+        if information.role == "owner":
+            return 4
         if information.is_deleted is True:
             logging.warning(f"thanh vien co id {user_id} da bi xoa tu truoc")
             return 2

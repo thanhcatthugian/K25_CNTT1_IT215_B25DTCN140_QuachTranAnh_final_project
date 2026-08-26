@@ -1,7 +1,7 @@
 from pydantic import BaseModel,Field
 
 class CreateComment(BaseModel):
-    comment_text:str
+    comment_text:str = Field(default = None)
 
 class CommentResponse(BaseModel):
     id: int

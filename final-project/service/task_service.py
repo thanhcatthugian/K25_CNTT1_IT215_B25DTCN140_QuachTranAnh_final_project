@@ -52,6 +52,9 @@ def add_task(project_id:int,new_task:CreateTask,db:Session,user_data:dict = Depe
     if not information:
         logging.warning(f"Khong tim thay project co id {project_id}")
         return None
+    qualify = db.query(Task).filter(Task.title==new_task.title,Task.project_id==information.id).first()
+    if qualify:
+        return 3
     if information.is_deleted is True:
         logging.warning(f"Project co id {project_id} da bi xoa")
         return 1
@@ -134,24 +137,22 @@ def update_task_information(task_id:int,db:Session,new_task:UpdateTask,user_data
         if not information:
             logging.warning(f"Khong tim thay task co id {task_id}")
             return None
+        is_exist = db.query(Project).filter(Project.id==information.project_id).first()
+        qualify = db.query(Task).filter(Task.title==new_task.title,Task.project_id!=is_exist.id).first()
+        if qualify:
+            return 5
         in_project = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==information.project_id).all()
         if not in_project:
             logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
             return 2
         data = new_task.model_dump(exclude_unset=True)
-        if "due_date" in data:
-            try:
-                data["due_date"] = datetime.fromisoformat(data["due_date"])
-            except ValueError:
-                logging.warning("Dinh dang cua ngay thang dang bi nhap sai")
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                    detail = "Can truyen dung dinh dang YYYY-MM-DD / YYYY-MM-DDTHH:MM:SS"
-                )
         qualify = db.query(ProjectMember).filter(ProjectMember.user_id==new_task.assignee_id,ProjectMember.project_id==information.project_id).first()
         if not qualify:
             logging.warning(f"Nguoi dung co id {new_task.assignee_id} khong thuoc du an")
             return 1
+        if qualify.is_deleted is True:
+            logging.warning(f"Nguoi dung co id {new_task.assignee_id} da bi xoa")
+            return 4
         if information.is_deleted is True:
             logging.warning(f"Task co id {task_id} da bi xoa")
             return 3
@@ -198,14 +199,6 @@ def find_task_by_keyword(project_id:int,keyword:str,db:Session,user_data:dict = 
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
         return 1
     if validation.role == "member" or validation.role == "owner":
-        verify = db.query(Project).filter(Project.id==project_id).first()
-        if verify.is_deleted is True:
-            logging.warning(f"project co id {project_id} da bi xoa")
-            return 3
-        qualify = db.query(Task).filter(Task.project_id==project_id).all()
-        if not qualify:
-            logging.warning(f"Khong tim thay task cua project co id {project_id}")
-            return 2
         if keyword is None:
             information = db.query(Task).filter(Task.project_id==validation.project_id).all()
         else:
@@ -213,9 +206,9 @@ def find_task_by_keyword(project_id:int,keyword:str,db:Session,user_data:dict = 
             if keyword.isdigit():
                 keyword= int(keyword)
             information = db.query(Task).filter(or_ (Task.assignee_id.ilike(f"%{keyword}%"),(Task.status.ilike(f"%{keyword}%")),(Task.priority.ilike(f"%{keyword}%")),(Task.title.ilike(f"%{keyword}%")))).all()
-            if not information:
-                logging.warning("Khong tim thay task co thong tin tuong tu")
-                return 2
+        if not information:
+            logging.warning("Khong tim thay task co thong tin tuong tu")
+            return 2
         logging.info(f"Da tim thay thong tin task")
         return information
     logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co quyen thuc hien xoa task theo keyword")
@@ -258,7 +251,7 @@ def upload_file(task_id:int ,db:Session = Depends,file:UploadFile = File(...),us
             logging.warning(f"Khong tim thay task co id {task_id}")
             return None
         if information.is_deleted is True:
-            logging.warning(f"task co id {task_id} da bixoa")
+            logging.warning(f"task co id {task_id} da bi xoa")
             return 3
         information.attach_file = handle_upload_file(file)
         db.commit()

@@ -2,7 +2,11 @@ from pydantic import BaseModel,Field,ConfigDict
 
 class CreateProject(BaseModel):
     name : str = Field(...)
-    description: str = Field(None)
+    description: str = Field(default = None)
+
+class UpdateProject(BaseModel):
+    name : str = Field(default = None)
+    description: str = Field(default = None)
 
 class ProjectResponse(BaseModel):
     id:int

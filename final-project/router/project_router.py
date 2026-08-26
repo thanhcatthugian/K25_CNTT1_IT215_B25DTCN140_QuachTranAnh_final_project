@@ -35,6 +35,11 @@ def create_response(
 
 def add_new_project(request:Request,new_project:CreateProject,user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
     information = add_project(new_project,db,user_data)
+    if information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail= "Project da ton tai"
+        )
     return create_response(
         status_code=status.HTTP_201_CREATED,
         message="Tao thanh cong du an moi",
@@ -86,7 +91,7 @@ def show_project_through_id(request:Request,project_id: int = Path(...),user_dat
 
 @router.patch("/{project_id}",tags = ["Cap nhat du an"],status_code=status.HTTP_200_OK,response_model=ProjectResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
 
-def update_project(request:Request,new_project:CreateProject,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
+def update_project(request:Request,new_project:UpdateProject,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
     information = update_information(project_id,new_project,db,user_data)
     if information is None:
         raise HTTPException(
@@ -102,6 +107,11 @@ def update_project(request:Request,new_project:CreateProject,project_id:int = Pa
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Khong the thao tac tren du lieu da bi xoa"
+        )
+    elif information == 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail= "Project da ton tai"
         )
     return create_response(
         status_code=status.HTTP_200_OK,

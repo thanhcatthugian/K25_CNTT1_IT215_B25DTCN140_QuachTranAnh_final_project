@@ -138,3 +138,26 @@
 2026-08-25 07:20:04,734 + WARNING + Loi server
 2026-08-25 07:22:57,844 + WARNING + Loi server
 2026-08-25 07:23:57,457 + WARNING + Loi server
+2026-08-26 14:22:59,885 + INFO + Da tao thanh cong mot access token moi
+2026-08-26 14:23:50,251 + INFO + da tao thanh cong mot project moi co id 4
+2026-08-26 14:23:50,270 + INFO + Da them thanh cong mot member cho project voi quyen han owner
+2026-08-26 14:23:53,281 + WARNING + Loi HTTP
+2026-08-26 14:24:04,312 + INFO + Tim thay thong tin project voi keyword None
+2026-08-26 14:24:29,552 + INFO + Lay thanh cong thong tin du an co id 4
+2026-08-26 14:34:29,725 + INFO + Hien thi danh sach member cua project co id 2
+2026-08-26 14:37:49,254 + WARNING + Loi HTTP
+2026-08-26 14:37:58,733 + INFO + Them thanh cong mot task moi co id 3
+2026-08-26 14:38:24,386 + INFO + Them thanh cong mot task moi co id 4
+2026-08-26 14:38:49,189 + WARNING + Loi HTTP
+2026-08-26 14:40:45,221 + WARNING + Nguoi dung co id 0 khong thuoc du an
+2026-08-26 14:40:45,223 + WARNING + Loi HTTP
+2026-08-26 14:40:53,226 + WARNING + Nguoi dung co id 1 khong thuoc du an
+2026-08-26 14:40:53,229 + WARNING + Loi HTTP
+2026-08-26 14:41:03,232 + INFO + da cap nhat thanh cong thong tin cho task co id 4
+2026-08-26 14:43:23,401 + WARNING + Loi HTTP
+2026-08-26 14:47:44,204 + INFO + Da tao thanh cong mot access token moi
+2026-08-26 14:48:16,671 + INFO + Da cap nhat thanh cong thong tin cho project co id3
+2026-08-26 14:48:52,257 + WARNING + Loi HTTP
+2026-08-26 14:50:41,586 + INFO + Da cap nhat thanh cong thong tin cho project co id3
+2026-08-26 15:02:01,590 + INFO + Da cap nhat thanh cong thong tin cho project co id3
+2026-08-26 15:04:07,369 + INFO + Da cap nhat thanh cong thong tin cho project co id3

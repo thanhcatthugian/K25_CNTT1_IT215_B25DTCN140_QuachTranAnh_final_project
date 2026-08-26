@@ -71,11 +71,6 @@ def search_task(request:Request,project_id:int = Path(...),keyword:str = Query(N
             status_code=status.HTTP_404_NOT_FOUND,
             detail="khong tim thay thong tin tuong ung"
         )
-    elif information == 3:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail = "Du an da bi xoa"
-        )
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Lay thanh cong du lieu",
@@ -128,6 +123,16 @@ def update_task(request:Request,new_task: UpdateTask,task_id:int = Path(...),db:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Task da bi xoa"
         )
+    elif information == 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Thanh vien phu trach khong ton tai"
+        )
+    elif information == 5:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Task da ton tai"
+        )
     return create_response(
         status_code=status.HTTP_200_OK,
         message="Cap nhat thanh cong du lieu",
@@ -154,6 +159,7 @@ def remove_task(request:Request,task_id:int = Path(...),db:Session = Depends(get
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Task da bi xoa"
         )
+    
 
 
 
@@ -191,11 +197,6 @@ def post_comment(request:Request,new_comment:CreateComment,task_id:int = Path(..
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Task da bi xoa"
-        )
-    elif information == 2:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail = "Project da bi xoa"
         )
     elif information == 3:
         raise HTTPException(

@@ -10,6 +10,7 @@ from database import *
 from model.project_member_model import *
 from model.user_model import *
 import logging
+from model.task_model import *
 
 logging.basicConfig(
     filename="app.log",
@@ -46,6 +47,9 @@ class RoleCheck:
 
 
 def add_project(new_project:CreateProject,db:Session,user_data:dict = Depends(handle_token)):
+    qualify = db.query(Project).filter(Project.name==new_project.name).first()
+    if qualify:
+        return 1
     totally_new = Project(
         name = new_project.name,
         description = new_project.description,
@@ -101,7 +105,7 @@ def show_through_id(project_id:int,db:Session,user_data:dict = Depends(handle_to
         detail="Khong du quyen han truy cap chuc nang nay"
     )
 
-def update_information(project_id:int,new_project:CreateProject,db:Session,user_data: dict = Depends(handle_token)):
+def update_information(project_id:int,new_project:UpdateProject,db:Session,user_data: dict = Depends(handle_token)):
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong ton tai trong du an")
@@ -111,6 +115,9 @@ def update_information(project_id:int,new_project:CreateProject,db:Session,user_
         if not information:
             logging.warning(f"Khong tim thay du an co id{project_id}")
             return None
+        qualify = db.query(Project).filter(Project.name==new_project.name,Project.id!=project_id).first()
+        if qualify:
+            return 3
         if information.is_deleted is True:
             logging.warning(f"Du an co id {project_id} da bi xoa")
             return 2
@@ -141,8 +148,11 @@ def soft_delete_project(project_id:int,db:Session,user_data:dict = Depends(handl
             logging.warning(f"Du an co id {project_id} da bi xoa")
             return 2
         linking_information = db.query(ProjectMember).filter(ProjectMember.project_id==project_id).all()
+        linking_task = db.query(Task).filter(Task.project_id==project_id).all()
         information.is_deleted = True
         for i in linking_information:
+            i.is_deleted = True
+        for i in linking_task:
             i.is_deleted = True
         db.commit()
         db.refresh(information)

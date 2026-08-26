@@ -52,9 +52,6 @@ def add_comment(task_id: int,new_comment:CreateComment,db:Session,user_data:dict
         logging.warning(f"Task co id {task_id} da bi xoa")
         return 1
     validation = db.query(Project).filter(Project.id==is_exist.project_id).first()
-    if validation.is_deleted is True:
-        logging.warning(f"Project co id {is_exist.project_id} da bi xoa")
-        return 2
     qualify = db.query(ProjectMember).filter(ProjectMember.project_id==validation.id,ProjectMember.user_id==user_data["user_id"]).first()
     if not qualify:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")

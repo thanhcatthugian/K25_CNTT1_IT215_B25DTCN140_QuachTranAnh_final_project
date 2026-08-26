@@ -144,6 +144,11 @@ def add_new_task(request:Request,new_task:CreateTask,project_id:int = Path(...),
             status_code=status.HTTP_403_FORBIDDEN,
             detail = "Khong the them task ma nguoi dung khong thuoc du an"
         )
+    elif information == 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Task da ton tai"
+        )
     return create_response(
         status_code=status.HTTP_201_CREATED,
         message="Tao thanh cong task moi",
@@ -184,6 +189,11 @@ def remove_member(request:Request,project_id:int = Path(...),user_id:int = Path(
     if information is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Khong tim thay thong tin project"
+        )
+    if information == 3:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Khong tim thay thong tin thanh vien"
         )
     elif information == 1:
@@ -195,6 +205,11 @@ def remove_member(request:Request,project_id:int = Path(...),user_id:int = Path(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail = "Thanh vien nay da bi xoa"
+        )
+    elif information == 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Khong the xoa owner khoi du an"
         )
 
 

@@ -14,7 +14,7 @@ class UpdateTask(BaseModel):
     status: Literal["todo","in_progress","done"] = Field(default="todo")
     priority : Literal["low","medium","high"]  = Field(default = "low")
     due_date :datetime   = Field(default=None)
-    assignee_id : int = Field(None)
+    assignee_id : int = Field(default = None)
 
 class TaskResponse(BaseModel):
     id:int
