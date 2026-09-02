@@ -62,6 +62,17 @@ def add_task(project_id:int,new_task:CreateTask,db:Session,user_data:dict = Depe
     if not validation:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
         return 2
+    if new_task.due_date is None:
+        duedate = datetime.now()+timedelta(days=3)
+    else:
+        duedate = new_task.due_date
+        print(duedate)
+        if duedate < datetime.now(timezone.utc)+timedelta(hours=1):
+            return 4
+    if new_task.assignee_id is None:
+        asgin_id = user_data["user_id"]
+    else:
+        asgin_id = new_task.assignee_id
     if validation.role=="member" or validation.role == "owner":
         totally_new = Task(
             title = new_task.title,
@@ -69,9 +80,9 @@ def add_task(project_id:int,new_task:CreateTask,db:Session,user_data:dict = Depe
             status = new_task.status,
             priority = new_task.priority,
             created_at = datetime.now(),
-            due_date = None,
+            due_date = duedate,
             project_id = project_id,
-            assignee_id = None,
+            assignee_id = asgin_id,
             is_deleted = False  
         )
         db.add(totally_new)
@@ -90,10 +101,6 @@ def show_tasks(project_id:int,db:Session,user_data:dict = Depends(handle_token))
     if not validation:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
         return 1
-    qualify = db.query(Project).filter(Project.id==project_id).first()
-    if qualify.is_deleted is True:
-        logging.warning(f"Project co id {project_id} da bi xoa")
-        return 2
     if validation.role=="member" or validation.role == "owner":
         information = db.query(Task).filter(Task.project_id==project_id).all()
         if not information:
@@ -132,7 +139,7 @@ def update_task_information(task_id:int,db:Session,new_task:UpdateTask,user_data
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"]).first()
     if not validation:
         return None
-    if  validation.role=="owner" or validation.role == "member":
+    if  validation.role=="owner":
         information = db.query(Task).filter(Task.id==task_id).first()
         if not information:
             logging.warning(f"Khong tim thay task co id {task_id}")
@@ -156,12 +163,35 @@ def update_task_information(task_id:int,db:Session,new_task:UpdateTask,user_data
         if information.is_deleted is True:
             logging.warning(f"Task co id {task_id} da bi xoa")
             return 3
+        if new_task.due_date is None:
+            duedate = datetime.now()+timedelta(days=3)
+        else:
+            duedate = new_task.due_date
+            print(duedate)
+            if duedate < datetime.now(timezone.utc)+timedelta(hours=1):
+                return 6
+        if new_task.status == "done":
+            information.completed_at = datetime.now(timezone.utc)
+        else:
+            information.completed_at = None
         for key,value in data.items():
             setattr(information,key,value)
         db.commit()
         db.refresh(information)
         logging.info(f"da cap nhat thanh cong thong tin cho task co id {task_id}")
         return information
+    else:
+        is_asignee = db.query(Task).filter(Task.assignee_id==user_data["user_id"],Task.id==task_id).first()
+        if is_asignee:
+            if new_task.status:
+                is_asignee.status = new_task.status
+            else:
+                is_asignee.status = is_asignee.status
+            db.commit()
+            db.refresh(is_asignee)
+            return is_asignee
+        if not is_asignee:
+            return 7
     logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co quyen thuc hien cap nhat task")
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
@@ -177,6 +207,8 @@ def soft_delete_task(task_id:int,db:Session,user_data:dict = Depends(handle_toke
     if information.is_deleted is True:
         logging.warning(f"Task co id {task_id} da bi xoa")
         return 2
+    if information.status !="todo":
+        return 3
     if validation.role == "owner":
         if not information :
             logging.warning(f"Khong tim thay task co id {task_id}")
@@ -270,39 +302,129 @@ def limit_offsett(project_id:int,limit_data:int,offset_data:int,db:Session,user_
     information = db.query(Project).filter(Project.id==project_id).first()
     if not information:
         return None
-    if information.is_deleted is True:
-        return 2
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         return 1
     if validation.role == "member" or validation.role == "owner":
         if limit_data is None and offset_data is None:
-            return db.query(Task).all()
+            qualify = db.query(Task).filter(Task.project_id==project_id).all()
+            if not qualify:
+                return 2
+            return qualify
         elif limit_data is not None and offset_data is None:
-            return db.query(Task).order_by(Task.created_at).limit(limit_data).all()
+            if limit_data >=20:
+                limit_data = 20
+            qualify = db.query(Task).order_by(Task.created_at).filter(Task.project_id==project_id).limit(limit_data).all()
+            if not qualify:
+                return 2
+            return qualify
         elif limit_data is None and offset_data is not None:
-            return db.query(Task).order_by(Task.created_at).offset(offset_data).all()
+            qualify = db.query(Task).order_by(Task.created_at).filter(Task.project_id==project_id).offset(offset_data).all()
+            if not qualify:
+                return 2
+            return qualify
         elif limit_data is not None and offset_data is not None:
-            return db.query(Task).order_by(Task.created_at).limit(limit_data).offset(offset_data).all()
+            if limit_data >=50:
+                limit_data=50
+            qualify = db.query(Task).order_by(Task.created_at).filter(Task.project_id==project_id).limit(limit_data).offset(offset_data).all()
+            if not qualify:
+                return 2
+            return qualify
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail = "Khong du quyen han truy cap chuc nang nay"
     )
 
 
-def sort_tasks_by_created_at(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+def sort_tasks_asc_by_created_at(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
     information = db.query(Project).filter(Project.id==project_id).first()
     if not information:
         return None
-    if information.is_deleted is True:
-        return 2
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         return 1
     if validation.role == "member" or validation.role == "owner":
-        return db.query(Task).order_by(Task.created_at.asc()).all()
+        qualify = db.query(Task).order_by(Task.created_at.asc()).filter(Task.project_id==project_id).all()
+        if not qualify:
+            return 2
+        return qualify
     raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail = "Khong du quyen han truy cap chuc nang nay"
         )
+
+
+def sort_tasks_desc_by_created_at(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    information = db.query(Project).filter(Project.id==project_id).first()
+    if not information:
+        return None
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 1
+    if validation.role == "member" or validation.role == "owner":
+        qualify = db.query(Task).order_by(Task.created_at.asc()).filter(Task.project_id==project_id).all()
+        if not qualify:
+            return 2
+        return qualify
+    raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail = "Khong du quyen han truy cap chuc nang nay"
+        )
+
+def count_done_tasks(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    information = db.query(Project).filter(Project.id==project_id).first()
+    count_done = 0
+    count_task = 0
+    if not information:
+        return 1
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 2
+    if validation.role == "owner" or validation.role == "member":
+        qualify = db.query(Task).filter(Task.project_id==project_id).all()
+        for i in qualify:
+            if i.status == "done":
+                count_done+=1
+            count_task+=1
+        return {"total_tasks": count_task, "done_tasks": count_done}
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail = "Khong du quyen truy cap chuc nang nay"
+    )
+
+def show_my_asigned_task(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    information = db.query(Project).filter(Project.id==project_id).first()
+    if not information:
+        return 1
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 2
+    if validation.role=="owner" or validation == "member":
+        qualify = db.query(Task).filter(Task.project_id==project_id,Task.assignee_id==user_data["user_id"])
+        if not qualify:
+            return 3
+        return qualify
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail = "Khong du quyen truy cap chuc nang nay"
+    )
+
+
+def check_over_deadline(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    information = db.query(Project).filter(Project.id==project_id).first()
+    if not information:
+        return 1
+    validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
+    if not validation:
+        return 2
+    if validation.role=="owner" or validation.role == "member":
+        time_now = datetime.now(timezone.utc)
+        qualify = db.query(Task).filter(Task.due_date<time_now,Task.status!="done",Task.project_id==project_id).all()
+        if qualify:
+            return qualify
+        return 3
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail = "Nguoi dung khong du quyen thao tac chuc nang nay"
+    )
     

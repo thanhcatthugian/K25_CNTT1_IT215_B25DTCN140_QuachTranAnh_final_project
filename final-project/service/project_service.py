@@ -80,7 +80,7 @@ def show_own_project(db:Session,keyword:str,user_data:dict = Depends(handle_toke
         information = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"]).all()
     elif keyword is not None:
         keyword = keyword.lower()
-        information = db.query(Project).filter(Project.name.ilike(f"%{keyword}%")).all()
+        information = db.query(Project).join(ProjectMember,Project.id==ProjectMember.project_id).filter(Project.name.ilike(f"%{keyword}%"),ProjectMember.user_id==user_data["user_id"]).all()
     if not information:
         logging.warning("Khong tim thay thong tin project tuong ung")
         return None

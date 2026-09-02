@@ -17,28 +17,47 @@ logging.basicConfig(
 
 
 def add_account(new_account:CreateAccount,db:Session):
+    count_upper = 0
+    count_lower = 0
+    count_number = 0
+    count_symbol = 0
     information = db.query(User).filter(User.email==new_account.email).first()
     if information:
         logging.warning(f"Tai khoan co email {new_account.email} da ton tai")
         return None
+    
+    if len(new_account.password) <8:
+        return 1
+    for i in new_account.password:
+        if i.isupper() and i.isalpha():
+            count_upper+=1
+        elif i.islower()and i.isalpha():
+            count_lower +=1
+        elif i.isdigit():
+            count_number+=1
+        elif not i.isalnum():
+            count_symbol+=1
+    if count_symbol == 0 or count_upper ==0 or count_lower == 0 or count_number ==0:
+        return 2
+    check_name = new_account.full_name.strip().split(" ")
+    if len(check_name)<2:
+        return 3
     verified_password = ground_password(new_account.password)
     totally_new = User(
-        email = new_account.email,
+        email = new_account.email.strip().lower(),
         password_hash = verified_password,
-        full_name= new_account.full_name,
+        full_name= new_account.full_name.strip(),
         role = "user",
-        is_active = new_account.is_active,
+        is_active = True,
         created_at = datetime.now()
     )
     db.add(totally_new)
     db.commit()
     db.refresh(totally_new)
     data_response = User(
-        email = new_account.email,
+        email = new_account.email.strip().lower(),
         full_name= new_account.full_name,
         role = "user",
-        is_active = new_account.is_active,
-        created_at = datetime.now().isoformat()
     )
     logging.info(f"Tao thanh cong tai khoan moi co id {totally_new.id} ")
     return data_response

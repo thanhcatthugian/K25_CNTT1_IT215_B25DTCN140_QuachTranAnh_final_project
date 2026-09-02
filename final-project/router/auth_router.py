@@ -41,6 +41,21 @@ def register_account(request:Request,new_account:CreateAccount,db:Session = Depe
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Tai khoan da ton tai"
         )
+    if information == 1:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail = "Password can co do dai it nhat la 8"
+        )
+    elif information ==2:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail = "Mat khau can chua it nhat mot chu hoa,mot chu thuong, mot so va mot ky tu dac biet"
+        )
+    elif information == 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ten can chua it nhat 2 tu"
+        )
     return create_response(
         status_code=status.HTTP_201_CREATED,
         message="Tao thanh cong tai khoan moi",

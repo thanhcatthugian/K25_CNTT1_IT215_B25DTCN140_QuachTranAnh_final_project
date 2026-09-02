@@ -17,6 +17,6 @@ class Task(Base):
     assignee_id = Column(Integer,ForeignKey("users.id"))
     attach_file = Column(String(255))
     is_deleted = Column(Boolean,default=False,nullable=False)
-
+    completed_at = Column(DateTime)
 
 

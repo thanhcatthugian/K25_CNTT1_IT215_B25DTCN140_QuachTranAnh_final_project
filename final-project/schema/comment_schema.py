@@ -1,7 +1,7 @@
 from pydantic import BaseModel,Field
-
+from typing import Optional
 class CreateComment(BaseModel):
-    comment_text:str = Field(default = None)
+    comment_text:Optional[str] = Field(None,max_length=200)
 
 class CommentResponse(BaseModel):
     id: int

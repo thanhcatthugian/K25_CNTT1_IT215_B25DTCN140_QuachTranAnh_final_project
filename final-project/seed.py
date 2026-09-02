@@ -8,9 +8,9 @@ def run_seed():
         information = db.query(User).filter(User.email=="admin@gmail.com").first()
         if not information:
             admin_account = User(
-                email = "admin@gmail.com",
-                password_hash = ground_password("12345678"),
-                full_name = "nigga",
+                email = "admin@example.com",
+                password_hash = ground_password("stringst"),
+                full_name = "nigga admin",
                 role = "admin",
                 is_active = True,
                 created_at = datetime.now()

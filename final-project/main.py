@@ -13,7 +13,6 @@ from router.task_router import router as task_router
 from seed import *
 from setting import settings
 import logging
-
 logging.basicConfig(
     filename="app.log",
     level= logging.INFO,
