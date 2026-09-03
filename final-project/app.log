@@ -273,3 +273,10 @@
 2026-08-28 08:19:06,479 + INFO + Da tao thanh cong mot access token moi
 2026-08-28 08:21:22,762 + ERROR + Loi server
 2026-08-28 08:22:27,669 + INFO + Da tao thanh cong mot access token moi
+2026-09-03 07:09:25,823 + INFO + Da tao thanh cong mot access token moi
+2026-09-03 07:10:04,417 + INFO + Them thanh cong mot task moi co id 1
+2026-09-03 07:10:46,266 + WARNING + Khong tim thay task co id 3
+2026-09-03 07:10:46,268 + WARNING + Loi HTTP
+2026-09-03 07:10:52,240 + WARNING + Nguoi dung co id None khong thuoc du an
+2026-09-03 07:10:52,243 + WARNING + Loi HTTP
+2026-09-03 07:13:12,397 + INFO + da cap nhat thanh cong thong tin cho task co id 1

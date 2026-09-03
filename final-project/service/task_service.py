@@ -153,13 +153,14 @@ def update_task_information(task_id:int,db:Session,new_task:UpdateTask,user_data
             logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")
             return 2
         data = new_task.model_dump(exclude_unset=True)
-        qualify = db.query(ProjectMember).filter(ProjectMember.user_id==new_task.assignee_id,ProjectMember.project_id==information.project_id).first()
-        if not qualify:
-            logging.warning(f"Nguoi dung co id {new_task.assignee_id} khong thuoc du an")
-            return 1
-        if qualify.is_deleted is True:
-            logging.warning(f"Nguoi dung co id {new_task.assignee_id} da bi xoa")
-            return 4
+        if new_task.assignee_id is not None:
+            qualify = db.query(ProjectMember).filter(ProjectMember.user_id==new_task.assignee_id,ProjectMember.project_id==information.project_id).first()
+            if not qualify:
+                logging.warning(f"Nguoi dung co id {new_task.assignee_id} khong thuoc du an")
+                return 1
+            if qualify.is_deleted is True:
+                logging.warning(f"Nguoi dung co id {new_task.assignee_id} da bi xoa")
+                return 4
         if information.is_deleted is True:
             logging.warning(f"Task co id {task_id} da bi xoa")
             return 3
