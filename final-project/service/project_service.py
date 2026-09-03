@@ -47,11 +47,14 @@ class RoleCheck:
 
 
 def add_project(new_project:CreateProject,db:Session,user_data:dict = Depends(handle_token)):
+    check = db.query(Project).filter(Project.owner_id==user_data["user_id"]).all()
+    if len(check)>=5:
+        return 2
     qualify = db.query(Project).filter(Project.name==new_project.name).first()
     if qualify:
         return 1
     totally_new = Project(
-        name = new_project.name,
+        name = new_project.name.title(),
         description = new_project.description,
         owner_id = user_data["user_id"],
         created_at = datetime.now(),
@@ -135,6 +138,9 @@ def update_information(project_id:int,new_project:UpdateProject,db:Session,user_
     )
 
 def soft_delete_project(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    quantity = db.query(ProjectMember).filter(ProjectMember.project_id==project_id).all()
+    if len(quantity)>3:
+        return 3
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong ton tai trong du an")

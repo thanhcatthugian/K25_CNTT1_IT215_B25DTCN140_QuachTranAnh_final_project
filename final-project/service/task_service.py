@@ -121,7 +121,7 @@ def show_through_id(task_id:int,db:Session,user_data:dict = Depends(handle_token
     if validation.role == "member" or validation.role == "owner":
         information = db.query(Task).filter(Task.id==task_id).first()
         if not information:
-            logging.warning(f"Khong tim thay task co id {task_id}")
+            logging.warning(f"Khong tim thay task co id ++{task_id}")
             return None
         in_project = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==information.project_id).all()
         if not in_project:

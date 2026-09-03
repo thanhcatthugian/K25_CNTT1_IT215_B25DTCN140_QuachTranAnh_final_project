@@ -43,6 +43,9 @@ class RoleCheck:
         return user_data
 
 def add_project_memeber(project_id:int,new_project_member:AddMember,db:Session,user_data:dict = Depends(handle_token)):
+    quantity = db.query(ProjectMember).filter(ProjectMember.project_id==project_id).all()
+    if len(quantity) >=10:
+        return 7
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         logging.warning(f"Nguoi dung co id{user_data["user_id"]} khong ton tai trong du an")
@@ -94,6 +97,9 @@ def add_project_memeber(project_id:int,new_project_member:AddMember,db:Session,u
 def add_many_member(project_id:int,new_project_member:AddManyMember,db:Session,user_data:dict = Depends(handle_token)):
     fail_append = []
     success_append = []
+    quantity = db.query(ProjectMember).filter(ProjectMember.project_id==project_id).all()
+    if len(quantity) >=10:
+        return 3
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         return 1
@@ -189,3 +195,9 @@ def soft_delete_member(project_id:int,user_id:int,db:Session,user_data:dict = De
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Khong du quyen truy cap chuc nang nay"
     )
+
+def get_information_by_role(role_name:str,db:Session,user_data:dict = Depends(handle_token)):
+    qualify = db.query(ProjectMember).filter(ProjectMember.role==role_name,ProjectMember.user_id==user_data["user_id"]).all()
+    if not qualify:
+        return 1
+    return qualify

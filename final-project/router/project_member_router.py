@@ -2,7 +2,7 @@ from database import *
 from schema.project_member_schema import *
 from model.project_member_model import *
 from service.project_member_service import *
-from fastapi import APIRouter,HTTPException,status,Depends,Request,Path
+from fastapi import APIRouter,HTTPException,status,Depends,Request,Path,Query
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
@@ -31,6 +31,7 @@ def create_response(
         }
     )
 
+
 @router.post("/{project_id}/many-members",tags=["Them nhieu thanh vien du an"],status_code=status.HTTP_201_CREATED,response_model=MemberResponse,dependencies=[Depends(RoleCheck(["admin","user"]))])
 def add_manh_new_member(request:Request,new_project_member:AddManyMember,project_id:int = Path(...),user_data:dict = Depends(handle_token),db:Session = Depends(get_db)):
     information = add_many_member(project_id,new_project_member,db,user_data)
@@ -48,6 +49,11 @@ def add_manh_new_member(request:Request,new_project_member:AddManyMember,project
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail= "Du an nay da bi xoa"
+        )
+    elif information == 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Du an da co du 10 thanh vien tham gia"
         )
     return create_response(
             status_code=status.HTTP_201_CREATED,
@@ -95,6 +101,11 @@ def add_new_member(request:Request,new_project_member:AddMember,project_id:int =
             status_code=status.HTTP_200_OK,
             message="Thanh vien da duoc hoi sinh",
             path = request.url.path
+        )
+    elif information == 7:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Du an da co du 10 thanh vien tham gia"
         )
     return create_response(
         status_code=status.HTTP_201_CREATED,

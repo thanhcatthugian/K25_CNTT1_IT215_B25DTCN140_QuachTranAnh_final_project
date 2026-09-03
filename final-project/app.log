@@ -280,3 +280,22 @@
 2026-09-03 07:10:52,240 + WARNING + Nguoi dung co id None khong thuoc du an
 2026-09-03 07:10:52,243 + WARNING + Loi HTTP
 2026-09-03 07:13:12,397 + INFO + da cap nhat thanh cong thong tin cho task co id 1
+2026-09-03 07:40:47,143 + WARNING + Loi HTTP
+2026-09-03 07:40:57,031 + INFO + Da tao thanh cong mot access token moi
+2026-09-03 07:41:12,931 + WARNING + Loi HTTP
+2026-09-03 07:58:21,003 + INFO + Da tao thanh cong mot access token moi
+2026-09-03 07:59:58,298 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:00:08,691 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:00:21,571 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:01:50,105 + INFO + Da tao thanh cong mot access token moi
+2026-09-03 08:02:02,711 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:02:18,968 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:05:58,305 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:09:13,962 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:10:55,176 + WARNING + Loi HTTP
+2026-09-03 08:12:05,045 + WARNING + Loi HTTP
+2026-09-03 08:12:42,305 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:12:52,214 + INFO + Tim thay thong tin project voi keyword None
+2026-09-03 08:13:06,356 + INFO + Da tao thanh cong mot access token moi
+2026-09-03 08:13:26,408 + WARNING + Loi HTTP
+2026-09-03 08:13:51,044 + WARNING + Loi dinh dang du lieu

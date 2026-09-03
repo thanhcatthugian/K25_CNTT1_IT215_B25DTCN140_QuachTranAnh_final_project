@@ -3,7 +3,7 @@ from typing import Literal,Optional
 from datetime import datetime
 class CreateTask(BaseModel):
     title:str = Field(...,min_length=5,max_length=100)
-    description: Optional[str] = None
+    description: Optional[str] = Field(None,max_length=500)    
     status: Literal["todo","in_progress","done"] = Field(default="todo")
     priority : Literal["low","medium","high","urgent"]  = Field(default = "low")
     due_date :Optional[datetime] = None 
@@ -11,7 +11,7 @@ class CreateTask(BaseModel):
 
 class UpdateTask(BaseModel):
     title:Optional[str] = Field(None,min_length=5,max_length=100)
-    description: Optional[str] = None
+    description: Optional[str] = Field(None,max_length=500)
     status: Optional[Literal["todo","in_progress","done"]] = None
     priority : Optional[Literal["low","medium","high","urgent"]] = None
     due_date : Optional[datetime] = None 
