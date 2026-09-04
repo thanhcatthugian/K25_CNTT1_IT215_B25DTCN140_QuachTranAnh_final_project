@@ -72,6 +72,10 @@ def add_task(project_id:int,new_task:CreateTask,db:Session,user_data:dict = Depe
     if new_task.assignee_id is None:
         asgin_id = user_data["user_id"]
     else:
+        check = db.query(ProjectMember).filter(ProjectMember.user_id==new_task.assignee_id,ProjectMember.project_id==project_id).first()
+        if not check:
+
+            return 5
         asgin_id = new_task.assignee_id
     if validation.role=="member" or validation.role == "owner":
         totally_new = Task(
@@ -97,6 +101,9 @@ def add_task(project_id:int,new_task:CreateTask,db:Session,user_data:dict = Depe
     )
 
 def show_tasks(project_id:int,db:Session,user_data:dict = Depends(handle_token)):
+    qualify = db.query(Project).filter(Project.id==project_id).first()
+    if not qualify:
+        return 2
     validation = db.query(ProjectMember).filter(ProjectMember.user_id==user_data["user_id"],ProjectMember.project_id==project_id).first()
     if not validation:
         logging.warning(f"Nguoi dung co id {user_data["user_id"]} khong co trong project")

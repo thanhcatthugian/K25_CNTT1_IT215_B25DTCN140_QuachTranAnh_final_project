@@ -17,7 +17,7 @@ def create_access_token(payload:dict)->str:
     time_now = datetime.now(timezone.utc)
     payload.update({
         "iat": time_now,
-        "exp": time_now+timedelta(minutes=settings.expired_time)
+        "exp": time_now+timedelta(minutes=settings.expired_time),
     })
     return jwt.encode(payload=payload,key=SECRET_KEY,algorithm="HS256")
 

@@ -299,3 +299,25 @@
 2026-09-03 08:13:06,356 + INFO + Da tao thanh cong mot access token moi
 2026-09-03 08:13:26,408 + WARNING + Loi HTTP
 2026-09-03 08:13:51,044 + WARNING + Loi dinh dang du lieu
+2026-09-04 08:36:26,504 + INFO + Da tao thanh cong mot access token moi
+2026-09-04 08:36:44,696 + INFO + Lay thanh cong thong tin nguoi dung co id: 3
+2026-09-04 08:36:44,705 + INFO + lay thanh cong thong tin cua user co thong tin tim kiem keyword:None, status_keyword: None
+2026-09-04 08:37:23,023 + INFO + da tao thanh cong mot project moi co id 5
+2026-09-04 08:37:23,045 + INFO + Da them thanh cong mot member cho project voi quyen han owner
+2026-09-04 08:37:54,499 + WARNING + User co id 1 khong hoat dong
+2026-09-04 08:37:54,501 + WARNING + Loi HTTP
+2026-09-04 08:38:01,676 + INFO + Them thanh cong thanh vien moi co id 6 vao project co id 5
+2026-09-04 08:38:12,762 + INFO + Hien thi danh sach member cua project co id 5
+2026-09-04 08:38:30,623 + INFO + Lay thanh cong thong tin nguoi dung co id: 3
+2026-09-04 08:38:30,624 + INFO + Lay thanh cong thong tin nguoi dung co id: 3
+2026-09-04 08:40:47,202 + WARNING + Khong tim thay task cua project co id 5
+2026-09-04 08:40:47,204 + WARNING + Loi HTTP
+2026-09-04 08:41:24,712 + WARNING + Khong tim thay task cua project co id 4
+2026-09-04 08:41:24,714 + WARNING + Loi HTTP
+2026-09-04 08:41:29,245 + INFO + Hien thi toan bo task
+2026-09-04 08:45:24,749 + INFO + Da tao thanh cong mot access token moi
+2026-09-04 09:39:53,605 + INFO + Da tao thanh cong mot access token moi
+2026-09-04 09:40:19,784 + WARNING + Loi HTTP
+2026-09-04 09:40:38,096 + WARNING + Loi HTTP
+2026-09-04 09:40:49,806 + WARNING + Khong tim thay task cua project co id 5
+2026-09-04 09:40:49,809 + WARNING + Loi HTTP

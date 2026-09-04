@@ -160,6 +160,16 @@ def add_new_task(request:Request,new_task:CreateTask,project_id:int = Path(...),
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Task da ton tai"
         )
+    elif information == 4:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Thoi gian het han task can nhieu hon thoi gian giao 1 tieng"
+        )
+    elif information == 5:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail = "Khong tim thay id cho nguoi duoc giao viec"
+        )
     return create_response(
         status_code=status.HTTP_201_CREATED,
         message="Tao thanh cong task moi",
@@ -174,7 +184,7 @@ def show_all_task(request:Request,project_id:int = Path(...),db:Session = Depend
     if information is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Khong tim thay du an lien quan"
+            detail="Khong tim thay task"
         )
     elif information == 1:
         raise HTTPException(
@@ -183,8 +193,8 @@ def show_all_task(request:Request,project_id:int = Path(...),db:Session = Depend
         )
     elif information == 2:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail = "Du an da bi xoa"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail = "Du an khong tim thay"
         )
     return create_response(
         status_code=status.HTTP_200_OK,
